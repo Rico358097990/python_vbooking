@@ -17,35 +17,51 @@ class Vbooking:
 		self.meNum = 0
 		self.driver = webdriver.Chrome()
 		self.windowTime = datetime.datetime.now() - datetime.timedelta(days=ytime)
+		self.page = 2
 	
 	def getWanted(self, page_source):
-		pattern = re.compile('<td class="td2">(.*?) .*?<br /></td>',re.S)
+		pattern = re.compile('<div class="grab_icon_div">.*?</div>.*?<td class="td2">(.*?)<br></td>',re.S)
 		result = re.findall(pattern,page_source)
-		for r in result:
-			self.timeComp(r)
+		print result
+		#for r in result:
+			#print r
+			#self.timeComp(r[1])
+			#self.getMeLabel(r, page_source)
 		#print result.group(1)  #测试输出
 
 	
-	def getMeLabel(self,driver):
-		elements = driver.find_elements(By.CLASS_NAME, 'icon_mycp01')
-		print len(elements)
-		self.meNum = self.meNum + len(elements)
+	def getMeLabel(self,r,page_source):
+		str = '<i class="label icon_mycp01" title="我的产品">我的产品</i>'
+		paStr = '<div class="order_detail">.*?<div class="grab_icon_div">(.*?)</div>.*?<td class="td2">"' + r + '".*?</div>'
+		pattern = re.compile(paStr,re.S)
+		result = re.search(pattern,page_source)
+		if result:
+			print result.group(1).strip()
 		
 
 	def getPage(self,driver):
-		self.getMeLabel(driver)
 		self.getWanted(driver.page_source)
 		
 	def nextPage(self,driver):
 		element = driver.find_element_by_id("next_id")
 		if element:
 			element.click()
+			try:
+				while True:
+					pattern = re.compile('<a.*?class="current".*?>(.*?)</a>',re.S)
+					result = re.search(pattern,driver.page_source)
+					#print result.group(1).strip()
+					if self.page == int(result.group(1).strip()):
+						self.page = self.page + 1
+						break
+			finally:
+				pass
 		else:
 			self.orDown = False
 		
 		
 	def timeComp(self, t1):
-		strpTime = datetime.datetime.strptime(t1, "%Y-%m-%d")
+		strpTime = datetime.datetime.strptime(t1, "%Y-%m-%d  %H:%M:%S")
 		print strpTime, self.windowTime
 		if strpTime < self.windowTime:
 			self.orDown = False
@@ -67,11 +83,11 @@ class Vbooking:
 		element3.send_keys(Keys.RETURN)
 		
 		
-		element4 = WebDriverWait(self.driver, 0.2).until(
+		element4 = WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located((By.ID,"ctl00_liDingzhi")))
 		element4.click()
 		
-		element5 = WebDriverWait(self.driver, 0.2).until(
+		element5 = WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located((By.ID,"head_OrderProcess")))
 		element5.click()
 		
