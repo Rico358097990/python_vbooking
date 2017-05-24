@@ -73,11 +73,11 @@ class Vbooking:
 		self.driver.get("http://vbooking.ctrip.com/")
 		element = self.driver.find_element_by_name("txtOperid")
 		element.clear
-		element.send_keys("UID_M415845707")
+		element.send_keys("*********")
 		
 		element2 = self.driver.find_element_by_name("txtPwd")
 		element2.clear
-		element2.send_keys("dm@223355")
+		element2.send_keys("********")
 		
 		element3 = self.driver.find_element(By.XPATH, '//*[@id="btnLogin"]')
 		element3.send_keys(Keys.RETURN)
